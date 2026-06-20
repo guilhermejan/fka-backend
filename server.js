@@ -10,6 +10,9 @@ const authRoute = require("./routes/auth");
 
 const app = express();
 
+const settingsRoute = require("./routes/settings");
+app.use("/api/settings", settingsRoute);
+
 // Em produção, troque "*" pela URL real do GitHub Pages
 // ex: "https://seuusuario.github.io"
 app.use(cors({ 
