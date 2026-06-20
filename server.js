@@ -12,7 +12,7 @@ const app = express();
 
 // Em produção, troque "*" pela URL real do GitHub Pages
 // ex: "https://seuusuario.github.io"
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: ["https://fkaimports.com.br", "https://www.fkaimports.com.br"] }));
 app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/products", productsRoute);
