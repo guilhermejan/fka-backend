@@ -1,31 +1,27 @@
 require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
-
 const express = require("express");
 const cors = require("cors");
-
 require("./database/db");
 
 const productsRoute = require("./routes/products");
 const authRoute = require("./routes/auth");
+const settingsRoute = require("./routes/settings");
 
 const app = express();
 
-const settingsRoute = require("./routes/settings");
-app.use("/api/settings", settingsRoute);
-
-// Em produção, troque "*" pela URL real do GitHub Pages
-// ex: "https://seuusuario.github.io"
-app.use(cors({ 
+app.use(cors({
   origin: [
-    "https://fkaimports.com.br", 
+    "https://fkaimports.com.br",
     "https://www.fkaimports.com.br",
     "https://silly-youtiao-577fbf.netlify.app"
-  ] 
+  ]
 }));
+
 app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/products", productsRoute);
 app.use("/api/auth", authRoute);
+app.use("/api/settings", settingsRoute);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
