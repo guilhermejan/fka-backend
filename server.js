@@ -13,7 +13,7 @@ app.use(cors({
   origin: [
     "https://fkaimports.com.br",
     "https://www.fkaimports.com.br",
-    "https://fka-frontend.pages.dev/"
+    "https://fka-frontend.pages.dev"
   ]
 }));
 
