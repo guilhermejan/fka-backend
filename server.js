@@ -13,7 +13,7 @@ app.use(cors({
   origin: [
     "https://fkaimports.com.br",
     "https://www.fkaimports.com.br",
-    "https://silly-youtiao-577fbf.netlify.app"
+    "https://fka-frontend.pages.dev/"
   ]
 }));
 
