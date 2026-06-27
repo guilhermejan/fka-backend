@@ -1,23 +1,37 @@
-// routes/settings.js — substitui o arquivo vazio atual
+// routes/settings.js
 const express = require("express");
 const router = express.Router();
 const pool = require("../database/db");
 const authMiddleware = require("../middleware/authMiddleware");
 
-// GET /api/settings/:key
+const PUBLIC_KEYS = ["hero_bg"];
+
 router.get("/:key", async (req, res) => {
+    const { key } = req.params;
+    const isPublic = PUBLIC_KEYS.includes(key);
+
     try {
+        if (!isPublic) {
+            return authMiddleware(req, res, async () => {
+                const result = await pool.query(
+                    "SELECT value FROM settings WHERE key = $1",
+                    [key]
+                );
+                res.json({ value: result.rows[0]?.value || "" });
+            });
+        }
+
         const result = await pool.query(
             "SELECT value FROM settings WHERE key = $1",
-            [req.params.key]
+            [key]
         );
         res.json({ value: result.rows[0]?.value || "" });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Erro ao buscar setting:", err.message);
+        res.status(500).json({ error: "Erro interno. Tente novamente mais tarde." });
     }
 });
 
-// PUT /api/settings/:key
 router.put("/:key", authMiddleware, async (req, res) => {
     const { value } = req.body;
     try {
@@ -28,7 +42,8 @@ router.put("/:key", authMiddleware, async (req, res) => {
         );
         res.json({ ok: true });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Erro ao salvar setting:", err.message);
+        res.status(500).json({ error: "Erro interno. Tente novamente mais tarde." });
     }
 });
 
