@@ -3,10 +3,8 @@ const router = express.Router();
 const { BetaAnalyticsDataClient } = require("@google-analytics/data");
 const authMiddleware = require("../middleware/authMiddleware");
 
-const PROPERTY_ID = process.env.GA4_PROPERTY_ID; // "543445618"
+const PROPERTY_ID = process.env.GA4_PROPERTY_ID;
 
-// Credenciais da conta de serviço, lidas do .env como JSON em uma única linha.
-// Ver instruções no .env.example sobre como formatar GA4_SERVICE_ACCOUNT_JSON.
 let credentials = null;
 try {
     credentials = JSON.parse(process.env.GA4_SERVICE_ACCOUNT_JSON || "{}");
@@ -29,12 +27,24 @@ function requireGA4(req, res, next) {
     next();
 }
 
+// Converte o parâmetro "days" para startDate/endDate do GA4
+function resolveDateRange(days) {
+    if (days === "today") {
+        return { startDate: "today", endDate: "today" };
+    }
+    if (days === "yesterday") {
+        return { startDate: "yesterday", endDate: "yesterday" };
+    }
+    const n = parseInt(days, 10) || 30;
+    return { startDate: `${n}daysAgo`, endDate: "today" };
+}
+
 router.get("/overview", requireGA4, async (req, res) => {
-    const days = parseInt(req.query.days, 10) || 30;
+    const { startDate, endDate } = resolveDateRange(req.query.days || "30");
     try {
         const [response] = await analyticsClient.runReport({
             property: `properties/${PROPERTY_ID}`,
-            dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }],
+            dateRanges: [{ startDate, endDate }],
             metrics: [
                 { name: "screenPageViews" },
                 { name: "activeUsers" },
@@ -44,14 +54,13 @@ router.get("/overview", requireGA4, async (req, res) => {
         });
 
         const row = response.rows && response.rows[0];
-        const metricValues = row ? row.metricValues.map(m => Number(m.value)) : [0, 0, 0, 0];
+        const v = row ? row.metricValues.map(m => Number(m.value)) : [0, 0, 0, 0];
 
         res.json({
-            pageViews: metricValues[0] || 0,
-            activeUsers: metricValues[1] || 0,
-            avgSessionSeconds: Math.round(metricValues[2] || 0),
-            sessions: metricValues[3] || 0,
-            days
+            pageViews: v[0] || 0,
+            activeUsers: v[1] || 0,
+            avgSessionSeconds: Math.round(v[2] || 0),
+            sessions: v[3] || 0
         });
     } catch (err) {
         console.error("Erro ao consultar GA4 (overview):", err.message);
@@ -60,11 +69,11 @@ router.get("/overview", requireGA4, async (req, res) => {
 });
 
 router.get("/traffic-sources", requireGA4, async (req, res) => {
-    const days = parseInt(req.query.days, 10) || 30;
+    const { startDate, endDate } = resolveDateRange(req.query.days || "30");
     try {
         const [response] = await analyticsClient.runReport({
             property: `properties/${PROPERTY_ID}`,
-            dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }],
+            dateRanges: [{ startDate, endDate }],
             dimensions: [{ name: "sessionDefaultChannelGroup" }],
             metrics: [{ name: "sessions" }],
             orderBys: [{ metric: { metricName: "sessions" }, desc: true }],
@@ -76,7 +85,7 @@ router.get("/traffic-sources", requireGA4, async (req, res) => {
             sessions: Number(row.metricValues[0].value)
         }));
 
-        res.json({ sources, days });
+        res.json({ sources });
     } catch (err) {
         console.error("Erro ao consultar GA4 (traffic-sources):", err.message);
         res.status(500).json({ error: "Erro ao consultar o Google Analytics." });
@@ -84,11 +93,11 @@ router.get("/traffic-sources", requireGA4, async (req, res) => {
 });
 
 router.get("/top-products", requireGA4, async (req, res) => {
-    const days = parseInt(req.query.days, 10) || 30;
+    const { startDate, endDate } = resolveDateRange(req.query.days || "30");
     try {
         const [viewsResponse] = await analyticsClient.runReport({
             property: `properties/${PROPERTY_ID}`,
-            dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }],
+            dateRanges: [{ startDate, endDate }],
             dimensions: [{ name: "customEvent:product_name" }],
             metrics: [{ name: "eventCount" }],
             dimensionFilter: {
@@ -103,7 +112,7 @@ router.get("/top-products", requireGA4, async (req, res) => {
 
         const [clicksResponse] = await analyticsClient.runReport({
             property: `properties/${PROPERTY_ID}`,
-            dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }],
+            dateRanges: [{ startDate, endDate }],
             dimensions: [{ name: "customEvent:product_name" }],
             metrics: [{ name: "eventCount" }],
             dimensionFilter: {
@@ -130,7 +139,7 @@ router.get("/top-products", requireGA4, async (req, res) => {
                 count: Number(row.metricValues[0].value)
             }));
 
-        res.json({ views, clicks, days });
+        res.json({ views, clicks });
     } catch (err) {
         console.error("Erro ao consultar GA4 (top-products):", err.message);
         res.status(500).json({ error: "Erro ao consultar o Google Analytics." });
@@ -138,11 +147,11 @@ router.get("/top-products", requireGA4, async (req, res) => {
 });
 
 router.get("/whatsapp-sources", requireGA4, async (req, res) => {
-    const days = parseInt(req.query.days, 10) || 30;
+    const { startDate, endDate } = resolveDateRange(req.query.days || "30");
     try {
         const [response] = await analyticsClient.runReport({
             property: `properties/${PROPERTY_ID}`,
-            dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }],
+            dateRanges: [{ startDate, endDate }],
             dimensions: [{ name: "customEvent:source" }],
             metrics: [{ name: "eventCount" }],
             dimensionFilter: {
@@ -162,9 +171,46 @@ router.get("/whatsapp-sources", requireGA4, async (req, res) => {
                 count: Number(row.metricValues[0].value)
             }));
 
-        res.json({ sources, days });
+        res.json({ sources });
     } catch (err) {
         console.error("Erro ao consultar GA4 (whatsapp-sources):", err.message);
+        res.status(500).json({ error: "Erro ao consultar o Google Analytics." });
+    }
+});
+
+// NOVO: visitas por dia para o gráfico
+router.get("/daily-views", requireGA4, async (req, res) => {
+    const rawDays = req.query.days || "30";
+
+    // Para "today" e "yesterday" retorna um único ponto (sem gráfico de linha)
+    const { startDate, endDate } = resolveDateRange(rawDays);
+
+    try {
+        const [response] = await analyticsClient.runReport({
+            property: `properties/${PROPERTY_ID}`,
+            dateRanges: [{ startDate, endDate }],
+            dimensions: [{ name: "date" }],
+            metrics: [{ name: "screenPageViews" }],
+            orderBys: [{ dimension: { dimensionName: "date" } }]
+        });
+
+        const data = (response.rows || []).map(row => {
+            const raw = row.dimensionValues[0].value; // "20260101"
+            const d = new Date(
+                parseInt(raw.slice(0, 4)),
+                parseInt(raw.slice(4, 6)) - 1,
+                parseInt(raw.slice(6, 8))
+            );
+            const label = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+            return {
+                label,
+                value: Number(row.metricValues[0].value)
+            };
+        });
+
+        res.json({ data });
+    } catch (err) {
+        console.error("Erro ao consultar GA4 (daily-views):", err.message);
         res.status(500).json({ error: "Erro ao consultar o Google Analytics." });
     }
 });
