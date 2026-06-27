@@ -3,21 +3,16 @@ const router = express.Router();
 const pool = require("../database/db");
 const authMiddleware = require("../middleware/authMiddleware");
 
-// ===============================
-// GET todos os produtos
-// ===============================
 router.get("/", async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM products ORDER BY id ASC");
         res.json(result.rows);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Erro ao buscar produtos:", err.message);
+        res.status(500).json({ error: "Erro interno. Tente novamente mais tarde." });
     }
 });
 
-// ===============================
-// POST criar produto
-// ===============================
 router.post("/", authMiddleware, async (req, res) => {
     const { name, cat, price, oldprice, desc, active, img, badge, featured } = req.body;
     try {
@@ -29,8 +24,8 @@ router.post("/", authMiddleware, async (req, res) => {
         );
         res.json({ id: result.rows[0].id });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
+        console.error("Erro ao criar produto:", err.message);
+        res.status(500).json({ error: "Erro interno. Tente novamente mais tarde." });
     }
 });
 
@@ -47,21 +42,19 @@ router.put("/:id", authMiddleware, async (req, res) => {
         );
         res.json({ updated: result.rowCount });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
+        console.error("Erro ao atualizar produto:", err.message);
+        res.status(500).json({ error: "Erro interno. Tente novamente mais tarde." });
     }
 });
 
-// ===============================
-// DELETE remover produto
-// ===============================
 router.delete("/:id", authMiddleware, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await pool.query("DELETE FROM products WHERE id=$1", [id]);
         res.json({ deleted: result.rowCount });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Erro ao remover produto:", err.message);
+        res.status(500).json({ error: "Erro interno. Tente novamente mais tarde." });
     }
 });
 
