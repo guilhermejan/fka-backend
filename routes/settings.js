@@ -4,7 +4,8 @@ const router = express.Router();
 const pool = require("../database/db");
 const authMiddleware = require("../middleware/authMiddleware");
 
-const PUBLIC_KEYS = ["hero_bg"];
+const PUBLIC_KEYS = ["hero_bg", "hero_bg_desktop", "hero_bg_mobile"];
+
 
 router.get("/:key", async (req, res) => {
     const { key } = req.params;
