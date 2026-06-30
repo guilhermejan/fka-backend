@@ -7,6 +7,7 @@ const productsRoute = require("./routes/products");
 const authRoute = require("./routes/auth");
 const settingsRoute = require("./routes/settings");
 const analyticsRoute = require("./routes/analytics");
+const reviewsRoute = require("./routes/reviews");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api/products", productsRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/settings", settingsRoute);
 app.use("/api/analytics", analyticsRoute);
+app.use("/api/reviews", reviewsRoute);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

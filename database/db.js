@@ -33,6 +33,19 @@ async function initDB() {
                 password TEXT
             )
         `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS reviews (
+                id          SERIAL PRIMARY KEY,
+                name        TEXT NOT NULL,
+                location    TEXT,
+                text        TEXT NOT NULL,
+                stars       INTEGER DEFAULT 5,
+                proof_img   TEXT,
+                active      INTEGER DEFAULT 1,
+                position    INTEGER DEFAULT 0
+            )
+        `);
+
         console.log("Banco inicializado.");
     } catch (err) {
         console.error("Erro ao inicializar banco:", err.message);
