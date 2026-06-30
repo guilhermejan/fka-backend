@@ -6,7 +6,7 @@ const pool = new Pool({
     database: "postgres",
     user: "postgres.mmlbdvhprljjpygnqyjw",
     password: process.env.DB_PASSWORD,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: true }
 });
 
 async function initDB() {

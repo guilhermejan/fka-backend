@@ -43,15 +43,36 @@ router.post("/login", loginLimiter, async (req, res) => {
         const token = jwt.sign(
             { id: admin.id, username: admin.username },
             SECRET,
-            { expiresIn: "24h" }
+            { expiresIn: "24h", algorithm: "HS256" }
         );
 
-        res.json({ token });
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 24 * 60 * 60 * 1000
+        });
+
+        res.json({ ok: true });
 
     } catch (err) {
         console.error("Erro no login:", err.message);
         res.status(500).json({ error: "Erro interno. Tente novamente mais tarde." });
     }
 });
+
+router.post("/logout", (req, res) => {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict"
+    });
+    res.json({ ok: true });
+});
+
+router.get("/me", authMiddleware, (req, res) => {
+    res.json({ ok: true, username: req.admin.username });
+});
+
 
 module.exports = router;

@@ -3,20 +3,18 @@ const jwt = require("jsonwebtoken");
 const SECRET = process.env.JWT_SECRET;
 
 function authMiddleware(req, res, next) {
-    const authHeader = req.headers.authorization;
+    const token = req.cookies?.token;
 
-    if (!authHeader) {
-        return res.status(401).json({ error: "Token não informado" });
+    if (!token) {
+        return res.status(401).json({ error: "Não autenticado" });
     }
 
-    const token = authHeader.replace("Bearer ", "");
-
     try {
-        const decoded = jwt.verify(token, SECRET);
+        const decoded = jwt.verify(token, SECRET, { algorithms: ["HS256"] });
         req.admin = decoded;
         next();
     } catch (error) {
-        return res.status(401).json({ error: error.message });
+        return res.status(401).json({ error: "Token inválido ou expirado" });
     }
 }
 
