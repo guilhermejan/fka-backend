@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const pool = require("../database/db");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 const SECRET = process.env.JWT_SECRET;
