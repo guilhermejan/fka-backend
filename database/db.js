@@ -6,8 +6,12 @@ const pool = new Pool({
     database: "postgres",
     user: "postgres.mmlbdvhprljjpygnqyjw",
     password: process.env.DB_PASSWORD,
-    ssl: { rejectUnauthorized: true }
+    ssl: {
+        rejectUnauthorized: false,
+        require: true
+    }
 });
+
 
 async function initDB() {
     const client = await pool.connect();
