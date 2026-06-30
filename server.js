@@ -15,7 +15,10 @@ const uploadRoute = require("./routes/upload");
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: false
+}));
+
 
 app.use(cors({
     origin: ["https://fkaimports.com.br", "https://www.fkaimports.com.br"],
