@@ -15,6 +15,19 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/admin", authMiddleware, async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT * FROM products ORDER BY id ASC"
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Erro ao buscar produtos:", err.message);
+        res.status(500).json({ error: "Erro interno. Tente novamente mais tarde." });
+    }
+});
+
+
 router.post("/", authMiddleware, async (req, res) => {
     const { name, cat, price, oldprice, desc, active, img, badge, featured } = req.body;
 
