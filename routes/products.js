@@ -6,7 +6,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 router.get("/", async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT id, name, cat, price, oldprice, description, img, badge, featured FROM products WHERE active = 1 ORDER BY id ASC"
+            "SELECT id, name, cat, price, oldprice, description, img, badge, featured, active FROM products WHERE active = 1 ORDER BY id ASC"
         );
         res.json(result.rows);
     } catch (err) {
@@ -26,7 +26,6 @@ router.get("/admin", authMiddleware, async (req, res) => {
         res.status(500).json({ error: "Erro interno. Tente novamente mais tarde." });
     }
 });
-
 
 router.post("/", authMiddleware, async (req, res) => {
     const { name, cat, price, oldprice, desc, active, img, badge, featured } = req.body;
