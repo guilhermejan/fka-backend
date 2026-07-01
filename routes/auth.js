@@ -8,9 +8,20 @@ const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 const SECRET = process.env.JWT_SECRET;
 
+// Opções do cookie centralizadas — usadas no login E no logout,
+// pra garantir que res.clearCookie realmente sobrescreve/apaga o certo
+const COOKIE_OPTS = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",           // ⬅ era "lax" — "none" é o correto pra fetch entre subdomínios
+    domain: ".fkaimports.com.br", // ⬅ novo — deixa o cookie explícito pro site inteiro
+    path: "/"
+};
+
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 5,
+    skipSuccessfulRequests: true, // ⬅ novo — login certo não consome a cota
     message: { error: "Muitas tentativas de login. Tente novamente em alguns minutos." },
     standardHeaders: true,
     legacyHeaders: false,
@@ -48,9 +59,7 @@ router.post("/login", loginLimiter, async (req, res) => {
         );
 
         res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "lax",
+            ...COOKIE_OPTS,
             maxAge: 24 * 60 * 60 * 1000
         });
 
@@ -63,17 +72,12 @@ router.post("/login", loginLimiter, async (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
-    res.clearCookie("token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax"
-    });
+    res.clearCookie("token", COOKIE_OPTS); // ⬅ agora usa as MESMAS opções do login
     res.json({ ok: true });
 });
 
 router.get("/me", authMiddleware, (req, res) => {
     res.json({ ok: true, username: req.admin.username });
 });
-
 
 module.exports = router;
