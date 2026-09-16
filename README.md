@@ -1,34 +1,7 @@
-# 🛍️ FKA Imports · Backend
+# FKA Imports · Backend
 
-API do projeto FKA Imports, que conecta o catálogo e a área administrativa ao banco de dados e a serviços externos.
+API do FKA Imports, projeto para uma empresa de importação de produtos. Conecta o catálogo e o painel administrativo ao banco de dados, com autenticação, gestão de produtos, avaliações, upload de imagens e integração com analytics.
 
-> 🤖 Projeto construído com assistência de IA na geração e alteração do código. Site feito pra empresa de importação de produtos.
+**Tecnologias:** Node.js, Express, PostgreSQL, Supabase, Cloudinary, JWT e Google Analytics.
 
-## Tecnologias presentes
-
-Node.js, Express, PostgreSQL (Supabase), Cloudinary, JWT e bcrypt. O projeto também declara integração com a API de dados do Google Analytics.
-
-## Organização
-
-| Caminho | Responsabilidade |
-| --- | --- |
-| `server.js` | Inicialização do Express e registro das rotas |
-| `database/db.js` | Conexão PostgreSQL e inicialização de tabelas |
-| `middleware/authMiddleware.js` | Middleware de autenticação |
-| `routes/` | Produtos, autenticação, avaliações, configurações, analytics e uploads |
-
-## Estado e cuidados
-
-O início da aplicação executa inicialização e alterações no banco: não rode contra uma base de produção apenas para testar. O código contém configurações específicas do ambiente original; adapte-as e use uma base isolada antes de executar. Credenciais, chaves e dados reais não devem ser publicados, inclusive no histórico Git.
-
-## Experiência registrada
-
-Contato assistido com APIs, autenticação, persistência e integração de serviços. A presença de mecanismos de segurança no código não equivale a uma garantia de segurança.
-
-## Configuração privada
-
-Copie `.env.example` para `../.env` (diretório pai deste repositório, conforme o carregamento existente) e preencha localmente. O banco agora exige `DB_HOST`, `DB_USER` e `DB_PASSWORD`. Ajuste também `DB_PORT`, `DB_NAME` e `CORS_ORIGINS` (origens separadas por vírgula). Sem origens configuradas, navegadores externos não recebem autorização CORS.
-
-Os identificadores de infraestrutura foram retirados do código atual. Eles ainda podem constar nos commits antigos. Não foram encontradas senhas literais nos arquivos próprios examinados do histórico da main; isso não é uma garantia de ausência de segredos ou de segurança da aplicação.
-
-O carregamento de `database/db.js` inicializa/altera tabelas. Execute apenas em ambiente isolado durante testes. Esta limpeza não altera esse comportamento nem realiza migrações.
+[Ver frontend](https://github.com/guilhermejan/fka-frontend)
