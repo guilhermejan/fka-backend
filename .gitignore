@@ -1,3 +1,21 @@
 .env
 node_modules/
 *.sqlite
+
+# Configurações privadas e dados locais
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+credentials*.json
+service-account*.json
+service_account*.json
+backups/
+dumps/
+*.sqlite
+*.sqlite3
+*.db

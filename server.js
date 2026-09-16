@@ -21,7 +21,7 @@ app.use(helmet({
 
 
 app.use(cors({
-    origin: ["https://fkaimports.com.br", "https://www.fkaimports.com.br"],
+    origin: (process.env.CORS_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean),
     credentials: true
 }));
 

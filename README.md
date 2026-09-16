@@ -26,3 +26,11 @@ O início da aplicação executa inicialização e alterações no banco: não r
 ## Experiência registrada
 
 Contato assistido com APIs, autenticação, persistência e integração de serviços. A presença de mecanismos de segurança no código não equivale a uma garantia de segurança.
+
+## Configuração privada
+
+Copie `.env.example` para `../.env` (diretório pai deste repositório, conforme o carregamento existente) e preencha localmente. O banco agora exige `DB_HOST`, `DB_USER` e `DB_PASSWORD`. Ajuste também `DB_PORT`, `DB_NAME` e `CORS_ORIGINS` (origens separadas por vírgula). Sem origens configuradas, navegadores externos não recebem autorização CORS.
+
+Os identificadores de infraestrutura foram retirados do código atual. Eles ainda podem constar nos commits antigos. Não foram encontradas senhas literais nos arquivos próprios examinados do histórico da main; isso não é uma garantia de ausência de segredos ou de segurança da aplicação.
+
+O carregamento de `database/db.js` inicializa/altera tabelas. Execute apenas em ambiente isolado durante testes. Esta limpeza não altera esse comportamento nem realiza migrações.
